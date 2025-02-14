@@ -13,7 +13,28 @@ export default defineConfig({
   plugins: [
     react(),
     legacy(),
-    VitePWA({ registerType: 'autoUpdate'})
+    VitePWA({ 
+      registerType: 'autoUpdate',
+      manifest: {
+				name: 'My PWA App',
+				short_name: 'PWA App',
+				theme_color: '#ffffff', // 🚀 WAJIB ditambahkan agar bisa diinstal
+				background_color: '#ffffff',
+				display: 'standalone',
+				icons: [
+					{
+						src: '/icon-192x192.png',
+						sizes: '192x192',
+						type: 'image/png'
+					},
+					{
+						src: '/-512x512.png',
+						sizes: '512x512',
+						type: 'image/png'
+					}
+				]
+			}
+    })
   ],
   test: {
     globals: true,
