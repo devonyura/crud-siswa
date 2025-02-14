@@ -7,10 +7,10 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+	base: '/crud-siswa/',
   optimizeDeps: {
     exclude: [`@ionic/pwa-elements/loader`],
   },
-	base: '/crud-siswa/',
 	build: {
 		rollupOptions: {
 			output: {
