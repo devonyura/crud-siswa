@@ -74,7 +74,7 @@ const App: React.FC = () => (
           </IonTabButton>
           <IonTabButton tab="tab2" href="/crud-siswa/tab2">
             <IonIcon aria-hidden="true" icon={images} />
-            <IonLabel>Camera</IonLabel>
+            <IonLabel>Gallery</IonLabel>
           </IonTabButton>
           <IonTabButton tab="tab3" href="/crud-siswa/tab3">
             <IonIcon aria-hidden="true" icon={square} />
