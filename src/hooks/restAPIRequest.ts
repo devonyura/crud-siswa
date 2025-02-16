@@ -12,7 +12,23 @@ export const getAllData = async (setStudens: React.Dispatch<React.SetStateAction
   }
 }
 
+export const getDataById = async (id: string): Promise<Student | null> => {
+	try {
+		const response = await fetch(`${REST_API_URL}/siswa/${id}`);
+		if (!response.ok) {
+			throw new Error('Gagal mengambil data siswa');
+		}
+		const data: Student = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error Fetching Student by ID:", error);
+		return null;
+	}
+};
+
+
 export const saveData = async (newStudents: object): Promise<ApiResponse> => {
+	console.log(newStudents);
 	return new Promise(async (resolve, reject) => {
 		try {
 			const response = await fetch(`${REST_API_URL}/siswa`, {
@@ -86,7 +102,7 @@ export const updateData = async (id: string, updatedStudent: object): Promise<Ap
 	});
 };
 
-interface ApiResponse {
+export interface ApiResponse {
 	success: boolean;
 	data?: any;
 	error?: string;

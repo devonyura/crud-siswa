@@ -44,46 +44,58 @@ import '@ionic/react/css/palettes/dark.system.css'
 
 /* Theme variables */
 import './theme/variables.css'
+import StudentAdd from './pages/StudentAdd';
+import StudentEdit from './pages/StudentEdit';
+
+import { StudentProvider } from './context/StudentContext' 
 
 setupIonicReact();
 
 const basePath = "/crud-siswa"
 
 const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter basename={basePath}>
-      <IonTabs>
-        <IonRouterOutlet>
-          <Route exact path={`${basePath}/student-list`}>
-            <StudentList />
-          </Route>
-          <Route exact path={`${basePath}/tab2`}>
-            <Tab2 />
-          </Route>
-          <Route path={`${basePath}/tab3`}>
-            <Tab3 />
-          </Route>
-          <Route exact path={basePath}>
-            <Redirect to={`${basePath}/student-list`} />
-          </Route>
-        </IonRouterOutlet>
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="student-list" href={`${basePath}/student-list`}>
-            <IonIcon aria-hidden="true" icon={person} />
-            <IonLabel>Siswa</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab2" href={`${basePath}/tab2`}>
-            <IonIcon aria-hidden="true" icon={images} />
-            <IonLabel>Gallerys</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab3" href={`${basePath}/tab3`}>
-            <IonIcon aria-hidden="true" icon={square} />
-            <IonLabel>Tab 3</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs>
-    </IonReactRouter>
-  </IonApp>
+  <StudentProvider>
+    <IonApp>
+      <IonReactRouter basename={basePath}>
+        <IonTabs>
+          <IonRouterOutlet>
+            <Route exact path={`/student-list`}>
+              <StudentList />
+            </Route>
+            <Route exact path={`/student-add`}>
+              <StudentAdd />
+            </Route>
+            <Route exact path={`/student-edit/:id`}>
+              <StudentEdit />
+            </Route>
+            <Route exact path={`/tab2`}>
+              <Tab2 />
+            </Route>
+            <Route path={`/tab3`}>
+              <Tab3 />
+            </Route>
+            <Route exact path={basePath}>
+              <Redirect to={`/student-list`} />
+            </Route>
+          </IonRouterOutlet>
+          <IonTabBar slot="bottom">
+            <IonTabButton tab="student-list" href={`/student-list`}>
+              <IonIcon aria-hidden="true" icon={person} />
+              <IonLabel>Siswa</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab="tab2" href={`/tab2`}>
+              <IonIcon aria-hidden="true" icon={images} />
+              <IonLabel>Gallerys</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab="tab3" href={`/tab3`}>
+              <IonIcon aria-hidden="true" icon={square} />
+              <IonLabel>Tab 3</IonLabel>
+            </IonTabButton>
+          </IonTabBar>
+        </IonTabs>
+      </IonReactRouter>
+    </IonApp>
+  </StudentProvider>
 );
 
 export default App;

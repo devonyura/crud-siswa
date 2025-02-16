@@ -13,16 +13,23 @@ import {
   IonProgressBar,
   IonAlert,
   IonText,
+  IonFab,
+  IonFabButton,
 } from '@ionic/react';
-import { pencil, trash } from "ionicons/icons";
-import './Tab1.css';
-import AddStudentModal from '../components/AddStudentModal'
-import EditStudentModal from '../components/EditStudentModal'
+import { pencil, trash, add } from "ionicons/icons"
+import './StudentList.css'
 import { getAllData, deleteData, Student } from '../hooks/restAPIRequest'
-import AlertOK from '../components/AlertOK';
+import AlertOK from '../components/AlertOK'
+import {useHistory} from 'react-router-dom'
+import { useStudent, StudentProvider } from '../context/StudentContext'
+
 
 
 const StudentList: React.FC = () => {
+
+  const history = useHistory();
+  const { updated, setUpdated } = useStudent();
+
 	const[students, setStudents] = useState<Student[]>([]);
   const[loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -30,33 +37,34 @@ const StudentList: React.FC = () => {
   const [showOkAlert, setShowOkAlert] = useState(false);
   const [alertMessage, setAlertMessage ] = useState('');
   
-  // edit
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [showEditModal, setShowEditModal] = useState(false);
-
   const fetchStudents = async () => {
-    // setLoading(true);
-    await getAllData(setStudents);
+    
+    await getAllData(setStudents)
 
-    setLoading(false);
+    setLoading(false)
   }
 
-  useEffect(() => {    
-    fetchStudents();
+  useEffect(() => {
+    fetchStudents()
   }, []);
+
+  useEffect(() => {
+    fetchStudents()
+    setUpdated(false);
+  }, [updated]);
 
   const handleDelete = async () => {
     if (selectedId) {
-      const result = await deleteData(selectedId);
+      const result = await deleteData(selectedId)
 
       if (result.success) {
-        setShowOkAlert(true);
-        setAlertMessage("siswa berhasil dihapus!");
+        setShowOkAlert(true)
+        setAlertMessage("siswa berhasil dihapus!")
 
-        getAllData(setStudents);
+        getAllData(setStudents)
       } else {
-        setShowOkAlert(true);
-        setAlertMessage("siswa gagak dihapus!" + result.error);
+        setShowOkAlert(true)
+        setAlertMessage("siswa gagak dihapus!" + result.error)
       }
     }
     setSelectedId(null);
@@ -93,7 +101,7 @@ const StudentList: React.FC = () => {
                 <h2>{student.nama}</h2>
                 <p>{student.alamat} - {(student.gender === 'L' )?'Pria':'Wanita'}</p>
               </IonLabel>
-              <IonButton color="primary" onClick={() => { setSelectedStudent(student); setShowEditModal(true)}}>
+              <IonButton color="primary" routerLink={`/student-edit/${student.id}`} >
                 <IonIcon icon={pencil} />
               </IonButton>
               <IonButton color="danger" onClick={() => { setSelectedId(student.id); setShowAlert(true) }}>
@@ -103,14 +111,12 @@ const StudentList: React.FC = () => {
           ))}
           </IonList>
         )}
-        <AddStudentModal fetchStudents={fetchStudents} />
-        <EditStudentModal
-          isOpen={showEditModal}
-          onClose={() => setShowEditModal(false)}
-          student={selectedStudent}
-          fetchStudents={() => getAllData(setStudents)}
-        />
-
+        
+        <IonFab vertical="bottom" horizontal="center" slot="fixed">
+          <IonFabButton onClick={() => history.push('/student-add')}>
+            <IonIcon icon={add} />
+          </IonFabButton>
+        </IonFab>
 			</IonContent>
 
       {/* IonAlert untuk konfirmasi sebelum menghapus */}
@@ -131,14 +137,8 @@ const StudentList: React.FC = () => {
 					},
 				]}
 			/>
-
-      {/* <IonAlert
-        isOpen={showOkAlert}
-        onDidDismiss={() => setShowOkAlert(false)}
-        header={alertMessage}
-        buttons={['OK']}
-      /> */}
       <AlertOK isOpen={showOkAlert} onDidDismiss={() => setShowOkAlert(false)} header={alertMessage} />
+        
 		</IonPage>
 	);
 };
