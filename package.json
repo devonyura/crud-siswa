@@ -12,10 +12,10 @@
     "lint": "eslint"
   },
   "proxy": {
-  "/api": {
-    "target": "https://api.rindapermai.com",
-    "changeOrigin": true,
-    "secure": false
+    "/api": {
+      "target": "https://api.rindapermai.com",
+      "changeOrigin": true,
+      "secure": false
     }
   },
   "dependencies": {
@@ -26,6 +26,7 @@
     "@capacitor/haptics": "7.0.0",
     "@capacitor/keyboard": "7.0.0",
     "@capacitor/preferences": "^7.0.0",
+    "@capacitor/splash-screen": "^7.0.0",
     "@capacitor/status-bar": "7.0.0",
     "@ionic/pwa-elements": "^3.3.0",
     "@ionic/react": "^8.0.0",
