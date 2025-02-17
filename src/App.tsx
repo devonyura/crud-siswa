@@ -40,7 +40,7 @@ import '@ionic/react/css/display.css'
 
 /* import '@ionic/react/css/palettes/dark.always.css'; */
 /* import '@ionic/react/css/palettes/dark.class.css'; */
-import '@ionic/react/css/palettes/dark.system.css'
+// import '@ionic/react/css/palettes/dark.system.css'
 
 /* Theme variables */
 import './theme/variables.css'
@@ -48,6 +48,7 @@ import StudentAdd from './pages/StudentAdd';
 import StudentEdit from './pages/StudentEdit';
 
 import { StudentProvider } from './context/StudentContext' 
+import LoginForm from './pages/LoginForm';
 
 setupIonicReact();
 
@@ -57,6 +58,9 @@ const App: React.FC = () => (
       <IonReactRouter>
         <IonTabs>
           <IonRouterOutlet>
+            <Route exact path={`/login`}>
+              <LoginForm />
+            </Route>
             <Route exact path={`/student-list`}>
               <StudentList />
             </Route>
@@ -85,9 +89,9 @@ const App: React.FC = () => (
               <IonIcon aria-hidden="true" icon={images} />
               <IonLabel>Gallerys</IonLabel>
             </IonTabButton>
-            <IonTabButton tab="tab3" href={`/tab3`}>
+            <IonTabButton tab="tab3" href={`/login`}>
               <IonIcon aria-hidden="true" icon={square} />
-              <IonLabel>Tab 3</IonLabel>
+              <IonLabel>Login</IonLabel>
             </IonTabButton>
           </IonTabBar>
         </IonTabs>
