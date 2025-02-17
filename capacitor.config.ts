@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   },
   appId: 'io.ionic.starter',
   appName: 'CRUD SISWA',
-  webDir: 'dist',
+  webDir: 'docs',
   plugins: {
 		SplashScreen: {
 			launchShowDuration: 3000, // Durasi splash screen dalam ms (3 detik)
