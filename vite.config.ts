@@ -7,7 +7,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	base: '/crud-siswa/',
+	server: {
+		port: 8100, // Ubah port menjadi 8100
+	},
   optimizeDeps: {
     exclude: [`@ionic/pwa-elements/loader`],
   },

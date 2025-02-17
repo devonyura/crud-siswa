@@ -80,7 +80,7 @@ const StudentAdd: React.FC = () => {
 						label="Nama"
 						labelPlacement="floating"
 						value={name}
-						onIonChange={(e) => setName(e.detail.value!)}
+						onIonInput={(e) => setName(e.detail.value!)}
 						type="text"
 						placeholder="Masukkan Nama"
 					/>
@@ -90,7 +90,7 @@ const StudentAdd: React.FC = () => {
 						label="Alamat"
 						labelPlacement="floating"
 						value={address}
-						onIonChange={(e) => setAddress(e.detail.value!)}
+						onIonInput={(e) => setAddress(e.detail.value!)}
 						type="text"
 						placeholder="Masukkan Alamat"
 					/>

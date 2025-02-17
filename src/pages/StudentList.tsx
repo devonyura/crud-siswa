@@ -15,20 +15,21 @@ import {
   IonText,
   IonFab,
   IonFabButton,
+  useIonViewWillEnter
 } from '@ionic/react';
 import { pencil, trash, add } from "ionicons/icons"
 import './StudentList.css'
 import { getAllData, deleteData, Student } from '../hooks/restAPIRequest'
 import AlertOK from '../components/AlertOK'
 import {useHistory} from 'react-router-dom'
-import { useStudent, StudentProvider } from '../context/StudentContext'
+// import { useStudent, StudentProvider } from '../context/StudentContext'
 
 
 
 const StudentList: React.FC = () => {
 
   const history = useHistory();
-  const { updated, setUpdated } = useStudent();
+  // const { updated, setUpdated } = useStudent();
 
 	const[students, setStudents] = useState<Student[]>([]);
   const[loading, setLoading] = useState(true);
@@ -38,6 +39,7 @@ const StudentList: React.FC = () => {
   const [alertMessage, setAlertMessage ] = useState('');
   
   const fetchStudents = async () => {
+    setLoading(true)
     
     await getAllData(setStudents)
 
@@ -48,10 +50,15 @@ const StudentList: React.FC = () => {
     fetchStudents()
   }, []);
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   fetchStudents()
+  //   setUpdated(false);
+  // }, [updated]);
+  
+  useIonViewWillEnter(() => {
     fetchStudents()
-    setUpdated(false);
-  }, [updated]);
+  })
+
 
   const handleDelete = async () => {
     if (selectedId) {
@@ -101,7 +108,7 @@ const StudentList: React.FC = () => {
                 <h2>{student.nama}</h2>
                 <p>{student.alamat} - {(student.gender === 'L' )?'Pria':'Wanita'}</p>
               </IonLabel>
-              <IonButton color="primary" routerLink={`/student-edit/${student.id}`} >
+              <IonButton color="primary" onClick={() => history.push('/student-edit', { student }) } >
                 <IonIcon icon={pencil} />
               </IonButton>
               <IonButton color="danger" onClick={() => { setSelectedId(student.id); setShowAlert(true) }}>

@@ -51,12 +51,10 @@ import { StudentProvider } from './context/StudentContext'
 
 setupIonicReact();
 
-const basePath = "/crud-siswa"
-
 const App: React.FC = () => (
   <StudentProvider>
     <IonApp>
-      <IonReactRouter basename={basePath}>
+      <IonReactRouter>
         <IonTabs>
           <IonRouterOutlet>
             <Route exact path={`/student-list`}>
@@ -65,7 +63,7 @@ const App: React.FC = () => (
             <Route exact path={`/student-add`}>
               <StudentAdd />
             </Route>
-            <Route exact path={`/student-edit/:id`}>
+            <Route exact path={`/student-edit`}>
               <StudentEdit />
             </Route>
             <Route exact path={`/tab2`}>
@@ -74,8 +72,8 @@ const App: React.FC = () => (
             <Route path={`/tab3`}>
               <Tab3 />
             </Route>
-            <Route exact path={basePath}>
-              <Redirect to={`/student-list`} />
+            <Route exact path={`/`}>
+              <StudentList />
             </Route>
           </IonRouterOutlet>
           <IonTabBar slot="bottom">

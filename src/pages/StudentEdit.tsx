@@ -13,52 +13,44 @@ import {
 	IonRadio,
 	IonLabel,
 } from '@ionic/react';
-import { useHistory, useParams } from 'react-router-dom';
-import { getDataById, updateData } from '../hooks/restAPIRequest';
+import { useHistory, useLocation } from 'react-router-dom';
+import { updateData } from '../hooks/restAPIRequest';
 import AlertOK from '../components/AlertOK';
-import {useStudent} from '../context/StudentContext'
-
 
 const StudentEdit: React.FC = () => {
-	const history = useHistory();
-  const {updated, setUpdated} = useStudent();
+	const [alertMessage, setAlertMessage] = useState('');
+	const [showAlert, setShowAlert] = useState(false);
 
-	const { id } = useParams<{ id: string }>();
+	const location = useLocation<{ student: any }>();
+	const history = useHistory();
+	const studentData = location.state?.student || null;
+
+	useEffect(() => {
+		if (!studentData) {
+			history.replace('/student-list');
+		}
+	}, [studentData, history]);	
 
 	const [name, setName] = useState('');
 	const [address, setAddress] = useState('');
 	const [gender, setGender] = useState('L');
-	const [showAlert, setShowAlert] = useState(false);
-	const [alertMessage, setAlertMessage] = useState('');
 
 	useEffect(() => {
-		const fetchStudent = async () => {
-			try {
-				const student = await getDataById(id);
-				if (student) {
-					setName(student.nama);
-					setAddress(student.alamat);
-					setGender(student.gender);
-				}
-			} catch (error) {
-				setAlertMessage('Gagal mengambil data siswa.');
-				setShowAlert(true);
-			}
-		};
-		fetchStudent();
-	}, [id]);
+		if (studentData) {
+			setName(studentData.nama);
+			setAddress(studentData.alamat);
+			setGender(studentData.gender);
+		}
+	}, [studentData]);
 
 	const handleEditStudent = async () => {
-    document.body.focus(); 
-    
+		document.body.focus();
 		const updatedStudent = { nama: name, alamat: address, gender };
 
 		try {
-			const result = await updateData(id, updatedStudent);
-
+			const result = await updateData(studentData.id, updatedStudent);
 			if (result.success) {
 				setAlertMessage('Data siswa berhasil diperbarui');
-        setUpdated(true);
 				history.push('/student-list');
 			} else {
 				setAlertMessage('Gagal mengupdate data siswa, pastikan data valid');
@@ -70,12 +62,16 @@ const StudentEdit: React.FC = () => {
 		setShowAlert(true);
 	};
 
+	const handleCancel = () => {
+		history.goBack();
+	};
+
 	return (
 		<IonPage>
 			<IonHeader>
 				<IonToolbar>
 					<IonButtons slot="start">
-						<IonButton onClick={() => history.goBack()}>Batal</IonButton>
+						<IonButton onClick={handleCancel}>Batal</IonButton>
 					</IonButtons>
 					<IonTitle>Edit Siswa</IonTitle>
 					<IonButtons slot="end">
@@ -87,27 +83,13 @@ const StudentEdit: React.FC = () => {
 			</IonHeader>
 			<IonContent className="ion-padding">
 				<IonItem>
-					<IonInput
-						label="Nama"
-						labelPlacement="floating"
-						value={name}
-						onIonChange={(e) => setName(e.detail.value!)}
-						type="text"
-						placeholder="Masukkan Nama"
-					/>
+					<IonInput label="Nama" labelPlacement="floating" value={name} onIonInput={(e) => setName(e.detail.value || '')} type="text" placeholder="Masukkan Nama" />
 				</IonItem>
 				<IonItem>
-					<IonInput
-						label="Alamat"
-						labelPlacement="floating"
-						value={address}
-						onIonChange={(e) => setAddress(e.detail.value!)}
-						type="text"
-						placeholder="Masukkan Alamat"
-					/>
+					<IonInput label="Alamat" labelPlacement="floating" value={address} onIonInput={(e) => setAddress(e.detail.value || '')} type="text" placeholder="Masukkan Alamat" />
 				</IonItem>
 				<IonItem>
-					<IonLabel id='gender'>Gender</IonLabel>
+					<IonLabel id="gender">Gender</IonLabel>
 					<IonRadioGroup value={gender} onIonChange={(e) => setGender(e.detail.value)}>
 						<IonRadio value="L">Pria</IonRadio>
 						<br />
