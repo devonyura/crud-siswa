@@ -9,6 +9,13 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
 	server: {
 		port: 8100, // Ubah port menjadi 8100
+		proxy: {
+			'/api': {
+				target: 'http://localhost:8080', // Ganti dengan URL backend
+				changeOrigin: true,
+				secure: false,
+			}
+		}
 	},
   optimizeDeps: {
     exclude: [`@ionic/pwa-elements/loader`],

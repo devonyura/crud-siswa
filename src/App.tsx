@@ -47,7 +47,7 @@ import './theme/variables.css'
 import StudentAdd from './pages/StudentAdd';
 import StudentEdit from './pages/StudentEdit';
 
-import { StudentProvider } from './context/StudentContext' 
+import { StudentProvider } from './context/StudentContext'
 import LoginForm from './pages/LoginForm';
 
 setupIonicReact();
@@ -73,11 +73,8 @@ const App: React.FC = () => (
             <Route exact path={`/tab2`}>
               <Tab2 />
             </Route>
-            <Route path={`/tab3`}>
-              <Tab3 />
-            </Route>
             <Route exact path={`/`}>
-              <StudentList />
+              <LoginForm />
             </Route>
           </IonRouterOutlet>
           <IonTabBar slot="bottom">

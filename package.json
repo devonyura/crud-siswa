@@ -11,13 +11,7 @@
     "test.unit": "vitest",
     "lint": "eslint"
   },
-  "proxy": {
-    "/api": {
-      "target": "https://api.rindapermai.com",
-      "changeOrigin": true,
-      "secure": false
-    }
-  },
+  "proxy": "http://localhost:8080",
   "dependencies": {
     "@capacitor/app": "7.0.0",
     "@capacitor/camera": "^7.0.0",
@@ -35,6 +29,7 @@
     "@types/react-router-dom": "^5.3.3",
     "ionicons": "^7.0.0",
     "react": "^18.2.0",
+    "react-cookie": "^7.2.2",
     "react-dom": "^18.2.0",
     "react-router": "^5.3.4",
     "react-router-dom": "^5.3.4"

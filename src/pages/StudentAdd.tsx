@@ -20,7 +20,7 @@ import { useStudent } from '../context/StudentContext'
 
 const StudentAdd: React.FC = () => {
 	const history = useHistory();
-  const { updated, setUpdated } = useStudent();
+	const { updated, setUpdated } = useStudent();
 
 	const [name, setName] = useState('');
 	const [address, setAddress] = useState('');
@@ -34,26 +34,39 @@ const StudentAdd: React.FC = () => {
 		setGender('L');
 	};
 
+	const checkForm = (name: string, value: any) => {
+		if (value === null || !value) {
+			setAlertMessage('Data ' + name + " tidak boleh kosong!");
+			setShowAlert(true)
+			return false
+		}
+		return true
+	}
+
 	const handleAddStudent = async () => {
-    document.body.focus(); 
-    
-		const newStudent = { nama: name, alamat: address, gender}
+		document.body.focus();
 
-    try {
+		const newStudent = { name, address, gender }
 
-      const result = await saveData(newStudent)
-    
-      if (result.success) {
-        setAlertMessage('Murid Berhasil Ditambah')
-        setUpdated(true);
-        history.push('/student-list')
-      } else {
-        setAlertMessage('Gagal menambah murid, pastikan data sesuai')
-      }
-     
-    } catch (error) {
-      setAlertMessage('Ada Kesalahan: '+error);
-    }
+		if (!checkForm("Nama", newStudent.name)) {
+			return
+		}
+
+		try {
+
+			const result = await saveData(newStudent)
+
+			if (result.success) {
+				setAlertMessage('Murid Berhasil Ditambah')
+				setUpdated(true);
+				history.push('/student-list')
+			} else {
+				setAlertMessage('Gagal menambah murid, pastikan data sesuai')
+			}
+
+		} catch (error) {
+			setAlertMessage('Ada Kesalahan: ' + error);
+		}
 
 		setShowAlert(true);
 		resetForm();

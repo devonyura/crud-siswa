@@ -29,7 +29,7 @@ const StudentEdit: React.FC = () => {
 		if (!studentData) {
 			history.replace('/student-list');
 		}
-	}, [studentData, history]);	
+	}, [studentData, history]);
 
 	const [name, setName] = useState('');
 	const [address, setAddress] = useState('');
@@ -37,15 +37,27 @@ const StudentEdit: React.FC = () => {
 
 	useEffect(() => {
 		if (studentData) {
-			setName(studentData.nama);
-			setAddress(studentData.alamat);
+			setName(studentData.name);
+			setAddress(studentData.address);
 			setGender(studentData.gender);
 		}
 	}, [studentData]);
 
+	const checkForm = (name: string, value: any) => {
+		if (value === null || !value) {
+			setAlertMessage('Data ' + name + " tidak boleh kosong!");
+			setShowAlert(true)
+			return false
+		}
+		return true
+	}
+
 	const handleEditStudent = async () => {
-		document.body.focus();
-		const updatedStudent = { nama: name, alamat: address, gender };
+		const updatedStudent = { name, address, gender };
+
+		if (!checkForm("Nama", updatedStudent.name)) {
+			return
+		}
 
 		try {
 			const result = await updateData(studentData.id, updatedStudent);
@@ -55,8 +67,9 @@ const StudentEdit: React.FC = () => {
 			} else {
 				setAlertMessage('Gagal mengupdate data siswa, pastikan data valid');
 			}
-		} catch (error) {
-			setAlertMessage('Ada Kesalahan: ' + error);
+		} catch (error: any) {
+			console.log(error);
+			setAlertMessage('Ada Kesalahan: ' + error.error);
 		}
 
 		setShowAlert(true);
@@ -86,7 +99,7 @@ const StudentEdit: React.FC = () => {
 					<IonInput label="Nama" labelPlacement="floating" value={name} onIonInput={(e) => setName(e.detail.value || '')} type="text" placeholder="Masukkan Nama" />
 				</IonItem>
 				<IonItem>
-					<IonInput label="Alamat" labelPlacement="floating" value={address} onIonInput={(e) => setAddress(e.detail.value || '')} type="text" placeholder="Masukkan Alamat" />
+					<IonInput label="Address" labelPlacement="floating" value={address} onIonInput={(e) => setAddress(e.detail.value || '')} type="text" placeholder="Masukkan Alamat" />
 				</IonItem>
 				<IonItem>
 					<IonLabel id="gender">Gender</IonLabel>
