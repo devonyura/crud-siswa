@@ -13,12 +13,21 @@ import {
 	IonRadio,
 	IonLabel,
 } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, Redirect } from 'react-router-dom';
 import { saveData, ApiResponse } from '../hooks/restAPIRequest';
 import AlertOK from '../components/AlertOK';
 import { useStudent } from '../context/StudentContext'
+import { useAuth } from "../hooks/useAuthCookie";
 
 const StudentAdd: React.FC = () => {
+
+	const { token } = useAuth();
+
+	if (!token) {
+		return <Redirect to="/login" />
+	}
+
+
 	const history = useHistory();
 	const { updated, setUpdated } = useStudent();
 

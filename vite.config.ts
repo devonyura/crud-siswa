@@ -17,9 +17,19 @@ export default defineConfig({
 			}
 		}
 	},
-  optimizeDeps: {
-    exclude: [`@ionic/pwa-elements/loader`],
-  },
+	preview: {
+		port: 8100, // Ubah port menjadi 8100
+		proxy: {
+			'/api': {
+				target: 'http://localhost:8080', // Ganti dengan URL backend
+				changeOrigin: true,
+				secure: false,
+			}
+		}
+	},
+	optimizeDeps: {
+		exclude: [`@ionic/pwa-elements/loader`],
+	},
 	build: {
 		rollupOptions: {
 			output: {
@@ -29,12 +39,12 @@ export default defineConfig({
 			}
 		}
 	},
-  plugins: [
-    react(),
-    legacy(),
-    VitePWA({ 
-      registerType: 'autoUpdate',
-      manifest: {
+	plugins: [
+		react(),
+		legacy(),
+		VitePWA({
+			registerType: 'autoUpdate',
+			manifest: {
 				name: 'My PWA App',
 				short_name: 'PWA App',
 				theme_color: '#ffffff', // 🚀 WAJIB ditambahkan agar bisa diinstal
@@ -53,11 +63,11 @@ export default defineConfig({
 					}
 				]
 			}
-    })
-  ],
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/setupTests.ts',
-  }
+		})
+	],
+	test: {
+		globals: true,
+		environment: 'jsdom',
+		setupFiles: './src/setupTests.ts',
+	}
 });

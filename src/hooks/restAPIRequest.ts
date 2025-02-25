@@ -1,5 +1,5 @@
 import React from "react";
-import { base64FromPath } from "./usePhotoGallery";
+import Cookies from "js-cookie";
 
 export interface ApiResponse {
 	success: boolean;
@@ -43,20 +43,8 @@ export const loginRequest = async (authData: Auth): Promise<ApiResponse> => {
 
 			console.info("Status Request loginRequest() : ", data.status);
 
-			// panggil function untuk bikin cookies (24 jam durasi cookie)
-			console.info("Token: ", data.token);
-			// bikin cookies token
-			const token = data.token;
-
-			// bikin cookies role
-			// let info = token.split('.');
-			// info = atob(info[1]);
-			// info = JSON.parse(info);
-
-			// let role = info.data.role;
-			// console.info("Role: ",info.data.role);
-
 			resolve({ success: true, data });
+
 		}
 		catch (error) {
 			const errorMessage = error instanceof Error ? error.message : "Terjadi kesalahan";
@@ -65,8 +53,6 @@ export const loginRequest = async (authData: Auth): Promise<ApiResponse> => {
 		}
 	});
 };
-
-const TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NDAyMzE4NjAsImV4cCI6MTc0MDIzNTQ2MCwiZGF0YSI6eyJpZCI6IjEiLCJ1c2VybmFtZSI6Im15YWRtaW4iLCJyb2xlIjoiYWRtaW4ifX0.LctO6Ty2bMnaL3p7xXqN1xQ1tFZ6GR9EI06IBCgzivk";
 
 const checkOKResponse = (response: any) => {
 	if (!response.ok) {
@@ -82,6 +68,7 @@ export const getAllData = async (setStudens: React.Dispatch<React.SetStateAction
 	// localStorage.setItem("token", JSON.stringify(data));
 	try {
 		// Ambil token JWT dari localStorage
+		const TOKEN = Cookies.get("token");
 
 		// Konfigurasi request dengan header Authorization
 		const response = await fetch(`/api/siswa`, {
@@ -112,6 +99,8 @@ export const getAllData = async (setStudens: React.Dispatch<React.SetStateAction
 
 export const getDataById = async (id: string): Promise<Student | null> => {
 	try {
+		// Ambil token JWT dari localStorage
+		const TOKEN = Cookies.get("token");
 
 		// Konfigurasi request dengan header Authorization
 		const response = await fetch(`/api/siswa/${id}`, {
@@ -143,6 +132,8 @@ export const getDataById = async (id: string): Promise<Student | null> => {
 export const saveData = async (newStudents: object): Promise<ApiResponse> => {
 	return new Promise(async (resolve, reject) => {
 		try {
+			// Ambil token JWT dari localStorage
+			const TOKEN = Cookies.get("token");
 
 			// Konfigurasi request dengan header Authorization
 			const response = await fetch(`/api/siswa`, {
@@ -176,6 +167,9 @@ export const deleteData = async (id: string): Promise<ApiResponse> => {
 	return new Promise(async (resolve, reject) => {
 		try {
 
+			// Ambil token JWT dari localStorage
+			const TOKEN = Cookies.get("token");
+
 			// Konfigurasi request dengan header Authorization
 			const response = await fetch(`/api/siswa/${id}`, {
 				method: "DELETE",
@@ -205,6 +199,9 @@ export const deleteData = async (id: string): Promise<ApiResponse> => {
 export const updateData = async (id: string, updatedStudent: object): Promise<ApiResponse> => {
 	return new Promise(async (resolve, reject) => {
 		try {
+
+			// Ambil token JWT dari localStorage
+			const TOKEN = Cookies.get("token");
 
 			// Konfigurasi request dengan header Authorization
 			const response = await fetch(`/api/siswa/${id}`, {

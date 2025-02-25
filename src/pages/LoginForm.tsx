@@ -1,14 +1,23 @@
-import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonPage, IonTitle, IonToolbar, IonImg, IonInputPasswordToggle, IonSegment } from '@ionic/react';
+import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonPage, IonTitle, IonToolbar, IonImg, IonInputPasswordToggle, IonSegment, IonToast, IonProgressBar, IonText } from '@ionic/react';
 // import './LoginForm.css';
-import { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
 import { loginRequest } from '../hooks/restAPIRequest';
 import AlertOK from '../components/AlertOK';
+import { useAuth } from "../hooks/useAuthCookie";
+import { warning } from 'ionicons/icons';
 
+interface LocationState {
+	isTokenExpired?: boolean;
+	dontRefresh?: boolean;
+}
 
 const LoginForm: React.FC = () => {
 
+	const { login, token } = useAuth();
 	const history = useHistory();
+	const location = useLocation<LocationState>();
+	const [isTokenExpired, setIsTokenExpired] = useState(location.state?.isTokenExpired || false);
 
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
@@ -42,20 +51,29 @@ const LoginForm: React.FC = () => {
 			const result = await loginRequest(authData)
 
 			if (result.success) {
+				const token = result.data.token;
+				login(token);
 				setAlertMessage('Berhasil Login')
+				setIsTokenExpired(false)
 				history.push('/student-list')
 			} else {
 				setAlertMessage('Gagal Login, pastikan data sesuai')
 			}
 
 		} catch (error) {
-			setAlertMessage('Ada Kesalahan: ' + error);
+			console.info(error);
+			setAlertMessage('Username atau Password salah!');
 		}
 
 		setShowAlert(true);
 		resetForm();
 	}
 
+	useEffect(() => {
+		if (token) {
+			history.replace("/student-list", { isTokenExpired: true })
+		}
+	}, [token, history, isTokenExpired]);
 
 	return (
 		<IonPage>
@@ -66,6 +84,22 @@ const LoginForm: React.FC = () => {
 			</IonHeader>
 			<IonContent className="ion-padding">
 				<IonImg src="/icon.png" className="app-logo" alt="App Logo" />
+				{isTokenExpired ? (
+					<IonToast
+						isOpen={true}
+						message={isTokenExpired ? "Sessi habis. Silahkan Login Kembali!" : "Kamu Sudah Login!"}
+						duration={6000} position='middle'
+						swipeGesture="vertical"
+						icon={warning}
+						buttons={[
+							{
+								text: 'Dismiss',
+								role: 'cancel',
+							},
+						]}
+					></IonToast>
+				) : ''
+				}
 				<IonSegment className="login-container">
 					<IonItem>
 						<IonInput

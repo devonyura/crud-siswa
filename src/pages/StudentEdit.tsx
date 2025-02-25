@@ -13,11 +13,20 @@ import {
 	IonRadio,
 	IonLabel,
 } from '@ionic/react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useLocation, Redirect } from 'react-router-dom';
 import { updateData } from '../hooks/restAPIRequest';
 import AlertOK from '../components/AlertOK';
+import { useAuth } from "../hooks/useAuthCookie";
 
 const StudentEdit: React.FC = () => {
+
+	const { token } = useAuth();
+
+	if (!token) {
+		return <Redirect to="/login" />
+	}
+
+
 	const [alertMessage, setAlertMessage] = useState('');
 	const [showAlert, setShowAlert] = useState(false);
 
@@ -76,7 +85,7 @@ const StudentEdit: React.FC = () => {
 	};
 
 	const handleCancel = () => {
-		history.goBack();
+		history.push("/student-list", { dontRefresh: true });
 	};
 
 	return (

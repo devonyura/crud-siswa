@@ -1,7 +1,8 @@
-import { camera, trash, close } from 'ionicons/icons'
-import { 
+import { useEffect } from 'react'
+import { camera } from 'ionicons/icons'
+import {
   IonContent,
-  IonHeader, 
+  IonHeader,
   IonPage,
   IonTitle,
   IonToolbar,
@@ -12,15 +13,38 @@ import {
   IonRow,
   IonCol,
   IonImg,
-  IonActionSheet,
- } from '@ionic/react';
-import ExploreContainer from '../components/ExploreContainer';
-import { usePhotoGallery } from '../hooks/usePhotoGallery';  
+  IonProgressBar,
+  IonText,
+} from '@ionic/react';
+import { usePhotoGallery } from '../hooks/usePhotoGallery';
 import './Tab2.css';
+import { useHistory } from "react-router-dom";
+import { useAuth } from "../hooks/useAuthCookie";
 
 const Tab2: React.FC = () => {
 
-  const { takePhoto, photos } = usePhotoGallery();
+  const { token } = useAuth();
+  const history = useHistory();
+
+  useEffect(() => {
+    if (!token) {
+      history.replace("/login", { isTokenExpired: true });
+    }
+  }, [token, history]);
+
+  if (!token) {
+    return (
+      <>
+        <IonProgressBar type="indeterminate"></IonProgressBar>
+        <IonText color="secondary">
+          <h2>Memuat Data...</h2>
+        </IonText>
+      </>
+    )
+  }
+
+
+  const { takePhoto, photos } = usePhotoGallery()
   console.log(photos);
   return (
     <IonPage>
@@ -37,7 +61,7 @@ const Tab2: React.FC = () => {
         </IonHeader>
         <IonGrid>
           <IonRow>
-            {photos.map((photo, index)=>(
+            {photos.map((photo, index) => (
               <IonCol size='6' key={photo.filepath}>
                 <IonImg src={photo.webviewPath} />
               </IonCol>
