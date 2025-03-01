@@ -15,20 +15,24 @@ import {
 } from '@ionic/react';
 import { useHistory, useLocation, Redirect } from 'react-router-dom';
 import { updateData } from '../hooks/restAPIRequest';
-import AlertOK from '../components/AlertOK';
 import { useAuth } from "../hooks/useAuthCookie";
+import AlertInfo, { AlertState } from '../components/AlertInfo';
 
 const StudentEdit: React.FC = () => {
+
+	// setup Alert
+	const [alert, setAlert] = useState<AlertState>({
+		showAlert: false,
+		header: '',
+		alertMesage: '',
+		hideButton: false,
+	});
 
 	const { token } = useAuth();
 
 	if (!token) {
 		return <Redirect to="/login" />
 	}
-
-
-	const [alertMessage, setAlertMessage] = useState('');
-	const [showAlert, setShowAlert] = useState(false);
 
 	const location = useLocation<{ student: any }>();
 	const history = useHistory();
@@ -54,34 +58,57 @@ const StudentEdit: React.FC = () => {
 
 	const checkForm = (name: string, value: any) => {
 		if (value === null || !value) {
-			setAlertMessage('Data ' + name + " tidak boleh kosong!");
-			setShowAlert(true)
+			setAlert({
+				showAlert: true,
+				header: "Peringatan",
+				alertMesage: 'Isian ' + name + " tidak boleh kosong!"
+			});
 			return false
 		}
 		return true
 	}
 
 	const handleEditStudent = async () => {
+
 		const updatedStudent = { name, address, gender };
 
 		if (!checkForm("Nama", updatedStudent.name)) {
 			return
 		}
+		if (!checkForm("Alamat", updatedStudent.address)) {
+			return
+		}
+
+		setAlert({
+			showAlert: true,
+			header: "Sedang menyimpan",
+			alertMesage: "Tunggu Sebentar...",
+			hideButton: true,
+		});
 
 		try {
 			const result = await updateData(studentData.id, updatedStudent);
 			if (result.success) {
-				setAlertMessage('Data siswa berhasil diperbarui');
+				setAlert({
+					showAlert: true,
+					header: "Berhasil",
+					alertMesage: "Data Murid diperbaharui."
+				});
 				history.push('/student-list');
 			} else {
-				setAlertMessage('Gagal mengupdate data siswa, pastikan data valid');
+				setAlert({
+					showAlert: true,
+					header: "Gagal!",
+					alertMesage: result.error
+				});
 			}
 		} catch (error: any) {
-			console.log(error);
-			setAlertMessage('Ada Kesalahan: ' + error.error);
+			setAlert({
+				showAlert: true,
+				header: "Kasalahan Server!",
+				alertMesage: error.error
+			});
 		}
-
-		setShowAlert(true);
 	};
 
 	const handleCancel = () => {
@@ -120,7 +147,13 @@ const StudentEdit: React.FC = () => {
 				</IonItem>
 			</IonContent>
 
-			<AlertOK isOpen={showAlert} onDidDismiss={() => setShowAlert(false)} header={alertMessage} />
+			<AlertInfo
+				isOpen={alert.showAlert}
+				header={alert.header}
+				message={alert.alertMesage}
+				onDidDismiss={() => setAlert(prevState => ({ ...prevState, showAlert: false }))}
+				hideButton={alert.hideButton}
+			/>
 		</IonPage>
 	);
 };

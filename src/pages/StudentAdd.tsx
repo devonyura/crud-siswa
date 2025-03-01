@@ -12,14 +12,23 @@ import {
 	IonRadioGroup,
 	IonRadio,
 	IonLabel,
+	IonicSafeString,
 } from '@ionic/react';
 import { useHistory, Redirect } from 'react-router-dom';
 import { saveData, ApiResponse } from '../hooks/restAPIRequest';
-import AlertOK from '../components/AlertOK';
 import { useStudent } from '../context/StudentContext'
 import { useAuth } from "../hooks/useAuthCookie";
+import AlertInfo, { AlertState } from '../components/AlertInfo';
 
 const StudentAdd: React.FC = () => {
+
+	// setup Alert
+	const [alert, setAlert] = useState<AlertState>({
+		showAlert: false,
+		header: '',
+		alertMesage: '',
+		hideButton: false,
+	});
 
 	const { token } = useAuth();
 
@@ -34,8 +43,7 @@ const StudentAdd: React.FC = () => {
 	const [name, setName] = useState('');
 	const [address, setAddress] = useState('');
 	const [gender, setGender] = useState('L');
-	const [showAlert, setShowAlert] = useState(false);
-	const [alertMessage, setAlertMessage] = useState('');
+
 
 	const resetForm = () => {
 		setName('');
@@ -45,19 +53,33 @@ const StudentAdd: React.FC = () => {
 
 	const checkForm = (name: string, value: any) => {
 		if (value === null || !value) {
-			setAlertMessage('Data ' + name + " tidak boleh kosong!");
-			setShowAlert(true)
+
+			setAlert({
+				showAlert: true,
+				header: "Peringatan",
+				alertMesage: 'Isian ' + name + " tidak boleh kosong!"
+			});
+
 			return false
 		}
 		return true
 	}
 
 	const handleAddStudent = async () => {
-		document.body.focus();
+
+		setAlert({
+			showAlert: true,
+			header: "Sedang menyimpan",
+			alertMesage: "Tunggu Sebentar...",
+			hideButton: true,
+		});
 
 		const newStudent = { name, address, gender }
 
 		if (!checkForm("Nama", newStudent.name)) {
+			return
+		}
+		if (!checkForm("Alamat", newStudent.address)) {
 			return
 		}
 
@@ -66,19 +88,30 @@ const StudentAdd: React.FC = () => {
 			const result = await saveData(newStudent)
 
 			if (result.success) {
-				setAlertMessage('Murid Berhasil Ditambah')
+				resetForm();
+				setAlert({
+					showAlert: true,
+					header: "Berhasil",
+					alertMesage: "Data Murid ditambahkan."
+				});
+
 				setUpdated(true);
 				history.push('/student-list')
 			} else {
-				setAlertMessage('Gagal menambah murid, pastikan data sesuai')
+				setAlert({
+					showAlert: true,
+					header: "Gagal!",
+					alertMesage: result.error
+				});
 			}
 
-		} catch (error) {
-			setAlertMessage('Ada Kesalahan: ' + error);
+		} catch (error: any) {
+			setAlert({
+				showAlert: true,
+				header: "Kasalahan Server!",
+				alertMesage: error.error
+			});
 		}
-
-		setShowAlert(true);
-		resetForm();
 	}
 
 	return (
@@ -127,7 +160,13 @@ const StudentAdd: React.FC = () => {
 				</IonItem>
 			</IonContent>
 
-			<AlertOK isOpen={showAlert} onDidDismiss={() => setShowAlert(false)} header={alertMessage} />
+			<AlertInfo
+				isOpen={alert.showAlert}
+				header={alert.header}
+				message={alert.alertMesage}
+				onDidDismiss={() => setAlert(prevState => ({ ...prevState, showAlert: false }))}
+				hideButton={alert.hideButton}
+			/>
 		</IonPage>
 	);
 };

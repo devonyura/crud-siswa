@@ -15,12 +15,15 @@ import {
   IonText,
   IonFab,
   IonFabButton,
-  useIonViewWillEnter
+  IonRefresher,
+  IonRefresherContent,
+  useIonViewWillEnter,
+  RefresherEventDetail,
 } from '@ionic/react';
-import { pencil, trash, add, exitOutline } from "ionicons/icons"
+import { pencil, trash, add, exitOutline, chevronDownCircleOutline } from "ionicons/icons"
 import './StudentList.css'
 import { getAllData, deleteData, Student } from '../hooks/restAPIRequest'
-import AlertOK from '../components/AlertOK'
+import AlertInfo, { AlertState } from '../components/AlertInfo'
 import { useHistory, useLocation } from 'react-router-dom'
 import { useAuth } from "../hooks/useAuthCookie";
 
@@ -29,6 +32,13 @@ interface DontRefresh {
 }
 
 const StudentList: React.FC = () => {
+  // setup Alert
+  const [alert, setAlert] = useState<AlertState>({
+    showAlert: false,
+    header: '',
+    alertMesage: '',
+    hideButton: false,
+  });
 
   const { token, role, logout } = useAuth();
   const history = useHistory();
@@ -37,15 +47,14 @@ const StudentList: React.FC = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [showAlert, setShowAlert] = useState(false);
   const [showLogoutAlert, setLogoutShowAlert] = useState(false);
-  const [showOkAlert, setShowOkAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');
+
   const [isRefresh, setIsRefresh] = useState(true);
   const [isRole, setIsRole] = useState<string | null>(null);
-  const [showRefreshButton, setShowRefreshButton] = useState(false);
 
-  const dontRefresh = location.state?.dontRefresh || false;
+  const [showAlert, setShowAlert] = useState(false);
+
+  const [refreshList, setRefreshList] = useState(false);
 
 
   useEffect(() => {
@@ -55,19 +64,28 @@ const StudentList: React.FC = () => {
     }
   }, [token, role, history]);
 
+  function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
+    setTimeout(async () => {
+      await getAllData(setStudents)
+      event.detail.complete();
+    }, 0)
+
+  }
+
   const fetchStudents = useCallback(async () => {
+    setRefreshList(false);
     setLoading(true)
 
-    setShowRefreshButton(false);
-    // Timer untuk menampilkan tombol jika lebih dari 6 detik
-    const timeoutId = setTimeout(() => {
-      setShowRefreshButton(true);
-    }, 5000);
+    const getData: any = await getAllData(setStudents);
 
-    await getAllData(setStudents)
-
-    // Jika fetch selesai lebih cepat, batalkan timeout
-    clearTimeout(timeoutId);
+    if (getData !== undefined) {
+      setAlert({
+        showAlert: true,
+        header: `Kasalahan Server!`,
+        alertMesage: getData
+      });
+      setRefreshList(true)
+    }
 
     setLoading(false)
 
@@ -86,19 +104,46 @@ const StudentList: React.FC = () => {
 
   const handleDelete = async () => {
     if (selectedId) {
-      const result = await deleteData(selectedId)
+      setShowAlert(false)
+      setAlert({
+        showAlert: true,
+        header: "Sedang menghapus",
+        alertMesage: "Tunggu Sebentar...",
+        hideButton: true,
+      });
 
-      if (result.success) {
-        setShowOkAlert(true)
-        setAlertMessage("siswa berhasil dihapus!")
+      try {
 
-        // getAllData(setStudents)
-        fetchStudents();
+        const result = await deleteData(selectedId)
 
-      } else {
-        setShowOkAlert(true)
-        setAlertMessage("siswa gagak dihapus!" + result.error)
+        console.log(result)
+
+        if (result.success) {
+          setAlert({
+            showAlert: true,
+            header: "Berhasil",
+            alertMesage: "Data Telah Terhapus."
+          });
+
+          fetchStudents();
+
+        } else {
+          setAlert({
+            showAlert: true,
+            header: "Gagal!",
+            alertMesage: result.error
+          });
+          setRefreshList(true)
+        }
+
+      } catch (error: any) {
+        setAlert({
+          showAlert: true,
+          header: "Kasalahan Server!",
+          alertMesage: error.error
+        });
       }
+
     }
     setSelectedId(null);
   }
@@ -114,11 +159,6 @@ const StudentList: React.FC = () => {
         <IonProgressBar type="indeterminate"></IonProgressBar>
         <IonText color="secondary">
           <h2>Memuat Data... </h2>
-          {showRefreshButton && (
-            <IonButton onClick={fetchStudents} color="primary" expand="full">
-              Refresh
-            </IonButton>
-          )}
         </IonText>
       </>
     )
@@ -154,12 +194,21 @@ const StudentList: React.FC = () => {
           <IonTitle>Daftar Siswa</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen>
+      <IonContent fullscreen className='ion-padding'>
         <IonHeader collapse="condense">
           <IonToolbar>
             <IonTitle size="large">Daftar Siswa</IonTitle>
           </IonToolbar>
         </IonHeader>
+
+        <IonRefresher slot="fixed" pullFactor={0.5} pullMin={100} pullMax={200} onIonRefresh={handleRefresh}>
+          <IonRefresherContent
+            pullingIcon={chevronDownCircleOutline}
+            pullingText="Pull to refresh"
+            refreshingSpinner="circles"
+            refreshingText="Refreshing..."
+          ></IonRefresherContent>
+        </IonRefresher>
 
         {content}
 
@@ -213,7 +262,14 @@ const StudentList: React.FC = () => {
           },
         ]}
       />
-      <AlertOK isOpen={showOkAlert} onDidDismiss={() => setShowOkAlert(false)} header={alertMessage} />
+
+      <AlertInfo
+        isOpen={alert.showAlert}
+        header={alert.header}
+        message={alert.alertMesage}
+        onDidDismiss={() => setAlert(prevState => ({ ...prevState, showAlert: false }))}
+        hideButton={alert.hideButton}
+      />
 
     </IonPage>
   );

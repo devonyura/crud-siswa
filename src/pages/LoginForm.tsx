@@ -3,9 +3,9 @@ import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonPage, IonTitle,
 import { useState, useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { loginRequest } from '../hooks/restAPIRequest';
-import AlertOK from '../components/AlertOK';
 import { useAuth } from "../hooks/useAuthCookie";
 import { warning } from 'ionicons/icons';
+import AlertInfo, { AlertState } from "../components/AlertInfo";
 
 interface LocationState {
 	isTokenExpired?: boolean;
@@ -14,6 +14,14 @@ interface LocationState {
 
 const LoginForm: React.FC = () => {
 
+	// setup Alert
+	const [alert, setAlert] = useState<AlertState>({
+		showAlert: false,
+		header: '',
+		alertMesage: '',
+		hideButton: false,
+	});
+
 	const { login, token } = useAuth();
 	const history = useHistory();
 	const location = useLocation<LocationState>();
@@ -21,8 +29,6 @@ const LoginForm: React.FC = () => {
 
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
-	const [showAlert, setShowAlert] = useState(false);
-	const [alertMessage, setAlertMessage] = useState('');
 
 	const resetForm = () => {
 		setUsername('');
@@ -31,8 +37,13 @@ const LoginForm: React.FC = () => {
 
 	const checkForm = (name: string, value: any) => {
 		if (value === null || !value) {
-			setAlertMessage('Data ' + name + " tidak boleh kosong!");
-			setShowAlert(true)
+
+			setAlert({
+				showAlert: true,
+				header: "Peringatan",
+				alertMesage: 'Isian ' + name + " tidak boleh kosong!"
+			});
+
 			return false
 		}
 		return true
@@ -46,6 +57,13 @@ const LoginForm: React.FC = () => {
 			return
 		}
 
+		setAlert({
+			showAlert: true,
+			header: "Sedang Login",
+			alertMesage: "Tunggu Sebentar...",
+			hideButton: true,
+		});
+
 		try {
 
 			const result = await loginRequest(authData)
@@ -53,19 +71,30 @@ const LoginForm: React.FC = () => {
 			if (result.success) {
 				const token = result.data.token;
 				login(token);
-				setAlertMessage('Berhasil Login')
+				setAlert({
+					showAlert: true,
+					header: "Berhasil",
+					alertMesage: "Semoga dagangannya laris ya!."
+				});
 				setIsTokenExpired(false)
 				history.push('/student-list')
 			} else {
-				setAlertMessage('Gagal Login, pastikan data sesuai')
+				setAlert({
+					showAlert: true,
+					header: "Gagal!",
+					alertMesage: result.error
+				});
+				// setAlertMessage('Gagal Login, pastikan data sesuai')
 			}
 
-		} catch (error) {
-			console.info(error);
-			setAlertMessage('Username atau Password salah!');
+		} catch (error: any) {
+			setAlert({
+				showAlert: true,
+				header: "Gagal!",
+				alertMesage: "Username / Password Salah atau jaringan bermasalah"
+			});
 		}
 
-		setShowAlert(true);
 		resetForm();
 	}
 
@@ -124,7 +153,14 @@ const LoginForm: React.FC = () => {
 					<IonButton expand="full" className="login-button" onClick={handleLogin}>Login</IonButton>
 				</IonSegment>
 			</IonContent>
-			<AlertOK isOpen={showAlert} onDidDismiss={() => setShowAlert(false)} header={alertMessage} />
+
+			<AlertInfo
+				isOpen={alert.showAlert}
+				header={alert.header}
+				message={alert.alertMesage}
+				onDidDismiss={() => setAlert(prevState => ({ ...prevState, showAlert: false }))}
+				hideButton={alert.hideButton}
+			/>
 		</IonPage>
 	);
 };
