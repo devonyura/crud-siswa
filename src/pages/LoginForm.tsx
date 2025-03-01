@@ -22,13 +22,19 @@ const LoginForm: React.FC = () => {
 		hideButton: false,
 	});
 
-	const { login, token } = useAuth();
+	const { login, token, role } = useAuth();
 	const history = useHistory();
 	const location = useLocation<LocationState>();
 	const [isTokenExpired, setIsTokenExpired] = useState(location.state?.isTokenExpired || false);
 
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
+
+	useEffect(() => {
+		if (token && role) {
+			history.replace("/student-list", { isTokenExpired: true });
+		}
+	}, [token, role, history]);
 
 	const resetForm = () => {
 		setUsername('');
